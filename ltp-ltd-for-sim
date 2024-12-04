@@ -1,0 +1,65 @@
+# Colab-specific setup
+# Ensure required packages are installed
+!pip install pandas openpyxl xlrd
+
+import pandas as pd
+import numpy as np
+import os
+from google.colab import files
+
+# Prompt the user to upload .xls files
+print("Please upload your .xls files:")
+uploaded_files = files.upload()
+
+# Set the range for 'readvoltage' (positive and negative)
+lower_bound_pos = 0.5
+upper_bound_pos = 1.0
+lower_bound_neg = -1.0
+upper_bound_neg = -0.5
+
+# Create a dictionary to store the processed columns
+processed_data = {}
+
+# Process each uploaded .xls file
+for file_name in uploaded_files.keys():
+    # Read the Excel file
+    try:
+        df = pd.read_excel(file_name)
+    except Exception as e:
+        print(f"Error reading {file_name}: {e}")
+        continue
+
+    # Check if VMeasCh1 and IMeasCh1 columns are present
+    if 'VMeasCh1' in df.columns and 'IMeasCh1' in df.columns:
+        # Filter rows where VMeasCh1 is within the positive range
+        df_filtered_pos = df[(df['VMeasCh1'] >= lower_bound_pos) & (df['VMeasCh1'] <= upper_bound_pos)]
+        df_filtered_neg = df[(df['VMeasCh1'] >= lower_bound_neg) & (df['VMeasCh1'] <= upper_bound_neg)]
+
+        # Shift currents corresponding to positive voltages (LTP)
+        ltp_currents = df_filtered_pos['IMeasCh1'].dropna().reset_index(drop=True)
+
+        # Shift currents corresponding to negative voltages (LTD)
+        ltd_currents = df_filtered_neg['IMeasCh1'].dropna().reset_index(drop=True)
+
+        # Add the processed LTP and LTD currents as new columns
+        file_base_name = os.path.splitext(file_name)[0]  # Extract file name without extension
+        processed_data[f'{file_base_name}_LTP'] = ltp_currents
+        processed_data[f'{file_base_name}_LTD'] = ltd_currents
+
+    else:
+        print(f"Skipping {file_name}: Required columns 'VMeasCh1' and/or 'IMeasCh1' are missing.")
+
+# Create a final DataFrame with columns from each processed file
+if processed_data:
+    final_df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in processed_data.items()]))
+
+    # Save the final DataFrame to an Excel file
+    output_file = 'final_output.xlsx'
+    final_df.to_excel(output_file, index=False)
+
+    # Download the final file to the local machine
+    files.download(output_file)
+
+    print(f'Processing completed. The output file {output_file} has been created and downloaded.')
+else:
+    print("No valid data processed. Please check your input files.")
