@@ -16,6 +16,6 @@ Python scripts to plot IV and LTP-LTD from Excel (xls) files.
    [![IV Modeling - Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DevinduDh/reram-characterizaton/blob/main/iv_modeling.ipynb)
 
 5. **LTP-LTD Comparison**  
-   [![LTP-LTD Comparison - Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DevinduDh/reram-characterizaton/blob/main/ltp_ltd-sim.ipynb)
+   [![LTP-LTD Comparison - Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DevinduDh/reram-characterizaton/blob/main/ltp-ltd-sim.ipynb)
 
 Feel free to add any other scripts or notebooks you'd like to share!
